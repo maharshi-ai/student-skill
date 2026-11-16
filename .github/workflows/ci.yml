@@ -1,0 +1,23 @@
+name: Java CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+      - name: Build and test
+        run: mvn --batch-mode clean verify
+      - name: Upload executable JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: student-skill-jar
+          path: target/student-skill-1.0.0.jar
