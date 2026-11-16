@@ -5,7 +5,15 @@ import java.sql.*;
 import java.util.*;
 
 public class PortalDao {
- public Object[] profile(long studentId)throws SQLException{\n  try(Connection c=Database.connect();PreparedStatement p=c.prepareStatement("SELECT phone,college,department,course,academic_year,cgpa FROM student_profiles WHERE user_id=?")){p.setLong(1,studentId);try(ResultSet r=p.executeQuery()){if(!r.next())return new Object[]{"","","","",null,null};return new Object[]{r.getString(1),r.getString(2),r.getString(3),r.getString(4),r.getObject(5),r.getBigDecimal(6)};}}\n }\n public void updateProfile(long id,String phone,String college,String department,String course,Integer year,java.math.BigDecimal cgpa)throws SQLException{\n  if(year!=null&&(year<1||year>6))throw new IllegalArgumentException("Academic year must be between 1 and 6.");\n  if(cgpa!=null&&(cgpa.compareTo(java.math.BigDecimal.ZERO)<0||cgpa.compareTo(java.math.BigDecimal.TEN)>0))throw new IllegalArgumentException("CGPA must be between 0 and 10.");\n  try(Connection c=Database.connect();PreparedStatement p=c.prepareStatement("UPDATE student_profiles SET phone=?,college=?,department=?,course=?,academic_year=?,cgpa=? WHERE user_id=?")){p.setString(1,phone);p.setString(2,college);p.setString(3,department);p.setString(4,course);if(year==null)p.setNull(5,java.sql.Types.TINYINT);else p.setInt(5,year);p.setBigDecimal(6,cgpa);p.setLong(7,id);p.executeUpdate();}\n }\n public List<Object[]> skills(long studentId) throws SQLException {
+ public Object[] profile(long studentId)throws SQLException{
+  try(Connection c=Database.connect();PreparedStatement p=c.prepareStatement("SELECT phone,college,department,course,academic_year,cgpa FROM student_profiles WHERE user_id=?")){p.setLong(1,studentId);try(ResultSet r=p.executeQuery()){if(!r.next())return new Object[]{"","","","",null,null};return new Object[]{r.getString(1),r.getString(2),r.getString(3),r.getString(4),r.getObject(5),r.getBigDecimal(6)};}}
+ }
+ public void updateProfile(long id,String phone,String college,String department,String course,Integer year,java.math.BigDecimal cgpa)throws SQLException{
+  if(year!=null&&(year<1||year>6))throw new IllegalArgumentException("Academic year must be between 1 and 6.");
+  if(cgpa!=null&&(cgpa.compareTo(java.math.BigDecimal.ZERO)<0||cgpa.compareTo(java.math.BigDecimal.TEN)>0))throw new IllegalArgumentException("CGPA must be between 0 and 10.");
+  try(Connection c=Database.connect();PreparedStatement p=c.prepareStatement("UPDATE student_profiles SET phone=?,college=?,department=?,course=?,academic_year=?,cgpa=? WHERE user_id=?")){p.setString(1,phone);p.setString(2,college);p.setString(3,department);p.setString(4,course);if(year==null)p.setNull(5,java.sql.Types.TINYINT);else p.setInt(5,year);p.setBigDecimal(6,cgpa);p.setLong(7,id);p.executeUpdate();}
+ }
+ public List<Object[]> skills(long studentId) throws SQLException {
   String q="SELECT s.id,s.name,s.category,ss.proficiency,ss.experience_years FROM skills s JOIN student_skills ss ON ss.skill_id=s.id AND ss.student_id=? ORDER BY s.name";
   List<Object[]> rows=new ArrayList<>();
   try(Connection c=Database.connect();PreparedStatement p=c.prepareStatement(q)){p.setLong(1,studentId);try(ResultSet r=p.executeQuery()){while(r.next())rows.add(new Object[]{r.getLong(1),r.getString(2),r.getString(3),r.getString(4),r.getBigDecimal(5)});}}
