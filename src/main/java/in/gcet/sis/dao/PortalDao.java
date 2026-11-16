@@ -39,7 +39,8 @@ public class PortalDao {
   return rows;
  }
  public void createInternship(String title,String company,String description,String skills,String location,String duration,double stipend,java.sql.Date deadline)throws SQLException{
-  if(title==null||title.isBlank()||company==null||company.isBlank()||description==null||description.isBlank())throw new IllegalArgumentException("Title, company and description are required.");\n  if(stipend<0||deadline==null||deadline.toLocalDate().isBefore(java.time.LocalDate.now()))throw new IllegalArgumentException("Stipend must be zero or more and deadline must be today or later.");
+  if(title==null||title.isBlank()||company==null||company.isBlank()||description==null||description.isBlank())throw new IllegalArgumentException("Title, company and description are required.");
+  if(stipend<0||deadline==null||deadline.toLocalDate().isBefore(java.time.LocalDate.now()))throw new IllegalArgumentException("Stipend must be zero or more and deadline must be today or later.");
   String q="INSERT INTO internships(title,company,description,required_skills,location,duration,stipend,deadline) VALUES(?,?,?,?,?,?,?,?)";
   try(Connection c=Database.connect();PreparedStatement p=c.prepareStatement(q)){p.setString(1,title.trim());p.setString(2,company.trim());p.setString(3,description.trim());p.setString(4,skills);p.setString(5,location);p.setString(6,duration);p.setDouble(7,stipend);p.setDate(8,deadline);p.executeUpdate();}
  }
