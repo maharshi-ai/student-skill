@@ -20,7 +20,7 @@ public class PortalDao {
     try(PreparedStatement p=c.prepareStatement("INSERT INTO skills(name,category) VALUES(?,?) ON DUPLICATE KEY UPDATE id=LAST_INSERT_ID(id)")){p.setString(1,name.trim());p.setString(2,category.trim());p.executeUpdate();try(ResultSet r=p.getGeneratedKeys()){if(!r.next())throw new SQLException("Could not resolve skill.");skillId=r.getLong(1);}}
     try(PreparedStatement p=c.prepareStatement("INSERT INTO student_skills(student_id,skill_id,proficiency,experience_years) VALUES(?,?,?,?) ON DUPLICATE KEY UPDATE proficiency=VALUES(proficiency),experience_years=VALUES(experience_years)")){p.setLong(1,studentId);p.setLong(2,skillId);p.setString(3,level);p.setDouble(4,years);p.executeUpdate();}
     c.commit();
-   }catch(Exception e){c.rollback();throw e;}
+   }catch(SQLException|RuntimeException e){c.rollback();throw e;}
   }
  }
  public void removeSkill(long studentId,long skillId)throws SQLException{try(Connection c=Database.connect();PreparedStatement p=c.prepareStatement("DELETE FROM student_skills WHERE student_id=? AND skill_id=?")){p.setLong(1,studentId);p.setLong(2,skillId);p.executeUpdate();}}
