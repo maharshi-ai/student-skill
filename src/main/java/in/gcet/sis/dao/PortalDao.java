@@ -6,7 +6,7 @@ import java.util.*;
 
 public class PortalDao {
  public List<Object[]> skills(long studentId) throws SQLException {
-  String q="SELECT s.id,s.name,s.category,ss.proficiency,ss.experience_years FROM skills s LEFT JOIN student_skills ss ON ss.skill_id=s.id AND ss.student_id=? ORDER BY s.name";
+  String q="SELECT s.id,s.name,s.category,ss.proficiency,ss.experience_years FROM skills s JOIN student_skills ss ON ss.skill_id=s.id AND ss.student_id=? ORDER BY s.name";
   List<Object[]> rows=new ArrayList<>();
   try(Connection c=Database.connect();PreparedStatement p=c.prepareStatement(q)){p.setLong(1,studentId);try(ResultSet r=p.executeQuery()){while(r.next())rows.add(new Object[]{r.getLong(1),r.getString(2),r.getString(3),r.getString(4),r.getBigDecimal(5)});}}
   return rows;
@@ -39,7 +39,7 @@ public class PortalDao {
   return rows;
  }
  public void createInternship(String title,String company,String description,String skills,String location,String duration,double stipend,java.sql.Date deadline)throws SQLException{
-  if(title.isBlank()||company.isBlank()||description.isBlank())throw new IllegalArgumentException("Title, company and description are required.");
+  if(title==null||title.isBlank()||company==null||company.isBlank()||description==null||description.isBlank())throw new IllegalArgumentException("Title, company and description are required.");\n  if(stipend<0||deadline==null||deadline.toLocalDate().isBefore(java.time.LocalDate.now()))throw new IllegalArgumentException("Stipend must be zero or more and deadline must be today or later.");
   String q="INSERT INTO internships(title,company,description,required_skills,location,duration,stipend,deadline) VALUES(?,?,?,?,?,?,?,?)";
   try(Connection c=Database.connect();PreparedStatement p=c.prepareStatement(q)){p.setString(1,title.trim());p.setString(2,company.trim());p.setString(3,description.trim());p.setString(4,skills);p.setString(5,location);p.setString(6,duration);p.setDouble(7,stipend);p.setDate(8,deadline);p.executeUpdate();}
  }
