@@ -20,8 +20,8 @@ public class AdminFrame extends JFrame {
  private JPanel panel(JTable t,String[] cols,Runnable refresh){JPanel p=new JPanel(new BorderLayout());p.setBackground(Theme.BG);t.setModel(new DefaultTableModel(cols,0){public boolean isCellEditable(int r,int c){return false;}});p.add(new JScrollPane(t));JButton b=button("REFRESH");b.addActionListener(e->refresh.run());p.add(b,BorderLayout.SOUTH);return p;}
  private JButton button(String s){JButton b=new JButton(s);Theme.button(b);return b;}
  private void setRows(JTable t,java.util.List<Object[]> rows){DefaultTableModel m=(DefaultTableModel)t.getModel();m.setRowCount(0);for(Object[] r:rows)m.addRow(r);}
- private void loadInternships(){work(()->setRows(internships,dao.allInternships()));}
- private void loadApplications(){work(()->setRows(applications,dao.allApplications()));}
+ private void loadInternships(){work(()->{try{setRows(internships,dao.allInternships());}catch(Exception e){throw new RuntimeException(e);}});}
+ private void loadApplications(){work(()->{try{setRows(applications,dao.allApplications());}catch(Exception e){throw new RuntimeException(e);}});}
  private void work(Runnable r){new SwingWorker<Void,Void>(){protected Void doInBackground(){r.run();return null;}protected void done(){try{get();}catch(Exception e){error(e);}}}.execute();}
  private void post(){
   JTextField title=new JTextField(),company=new JTextField(),skills=new JTextField(),location=new JTextField(),duration=new JTextField(),stipend=new JTextField("0"),deadline=new JTextField(LocalDate.now().plusDays(30).toString());JTextArea desc=new JTextArea(4,24);
