@@ -1,0 +1,31 @@
+package in.gcet.sis.ui;
+import in.gcet.sis.model.User; import in.gcet.sis.service.AuthService; import javax.swing.*; import java.awt.*;
+public class LoginFrame extends JFrame {
+ private final JTextField email=new JTextField(22); private final JPasswordField password=new JPasswordField(22); private final AuthService auth=new AuthService();
+ public LoginFrame(){
+  setTitle("Student Skill & Internship Management System");setDefaultCloseOperation(EXIT_ON_CLOSE);setSize(520,390);setLocationRelativeTo(null);
+  JPanel p=new JPanel(new GridLayout(0,1,10,10));p.setBorder(BorderFactory.createEmptyBorder(35,55,35,55));p.setBackground(Theme.PANEL);
+  JLabel title=new JLabel("STUDENT  /  INTERNSHIP",SwingConstants.CENTER);title.setForeground(Theme.TEXT);title.setFont(new Font("Segoe UI",Font.BOLD,22));p.add(title);
+  addLabel(p,"Email");p.add(email);addLabel(p,"Password");p.add(password);
+  JButton sign=new JButton("SIGN IN"),create=new JButton("CREATE ACCOUNT");Theme.button(sign);Theme.button(create);
+  JPanel a=new JPanel();a.setOpaque(false);a.add(sign);a.add(create);p.add(a);add(p);getContentPane().setBackground(Theme.BG);
+  sign.addActionListener(e->login());create.addActionListener(e->register());
+ }
+ private void addLabel(JPanel p,String s){JLabel l=new JLabel(s);l.setForeground(Theme.MUTED);p.add(l);}
+ private void login(){
+  String mail=email.getText();char[] pass=password.getPassword();setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+  new SwingWorker<User,Void>(){protected User doInBackground()throws Exception{return auth.login(mail,pass);}
+   protected void done(){setCursor(Cursor.getDefaultCursor());try{User u=get();if(u==null){JOptionPane.showMessageDialog(LoginFrame.this,"Invalid email or password.");return;}
+    if(!"STUDENT".equals(u.role())){JOptionPane.showMessageDialog(LoginFrame.this,"Admin interface is not included in this milestone.");return;}
+    new StudentFrame(u).setVisible(true);dispose();
+   }catch(Exception x){error(x);}}}.execute();
+ }
+ private void register(){
+  JTextField n=new JTextField(20),m=new JTextField(20);JPasswordField pw=new JPasswordField(20);JPanel f=new JPanel(new GridLayout(0,1,4,4));
+  f.add(new JLabel("Full name"));f.add(n);f.add(new JLabel("Email"));f.add(m);f.add(new JLabel("Password (8+ characters)"));f.add(pw);
+  if(JOptionPane.showConfirmDialog(this,f,"Student registration",JOptionPane.OK_CANCEL_OPTION)!=JOptionPane.OK_OPTION)return;
+  new SwingWorker<Void,Void>(){protected Void doInBackground()throws Exception{auth.register(n.getText(),m.getText(),pw.getPassword());return null;}
+   protected void done(){try{get();JOptionPane.showMessageDialog(LoginFrame.this,"Account created. Sign in now.");email.setText(m.getText());}catch(Exception x){error(x);}}}.execute();
+ }
+ private void error(Exception x){Throwable t=x.getCause()==null?x:x.getCause();JOptionPane.showMessageDialog(this,t.getMessage(),"Operation failed",JOptionPane.ERROR_MESSAGE);}
+}
